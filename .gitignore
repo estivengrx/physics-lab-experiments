@@ -17,3 +17,10 @@ env/
 
 # Mac OS-specific storage files
 .DS_Store
+
+*.HEIC
+*.png
+*audios-medidas/
+*.xlsx
+*.pdf
+*.docx

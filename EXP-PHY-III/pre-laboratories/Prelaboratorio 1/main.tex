@@ -1,0 +1,252 @@
+\documentclass[6pt,a4paper]{article}
+
+% Encoding and language packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, english]{babel}
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\sisetup{separate-uncertainty=true}
+\usepackage{float}
+\usepackage{subcaption}
+
+% AMS packages for math and symbols
+\usepackage{amsmath, amssymb}
+
+% Graphics and hyperref
+\usepackage{graphicx}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+% Page layout
+\usepackage[a4paper, margin=0.3in]{geometry}
+
+% Bibliography style (optional)
+\usepackage{cite}
+
+\title{Difracción y estructura de elementos ópticos periódicos\\
+\small Diffraction and Structure of Periodic Optical Elements}
+\author{\small
+  Ana María Hurtado Roldán\thanks{Universidad de Antioquia, sede Medellín, Facultad de Ciencias Exactas y Naturales, Instituto de Física, Física Experimental III.} \and
+  \small Estiven Castrillon Alzate\footnotemark[1] \and
+  \small Juan Sebastián Duque Gaitán\footnotemark[1] \and
+  \small Sofía Moscoso Ortiz\footnotemark[1]
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% Resumen en español
+\selectlanguage{spanish}
+\begin{abstract}
+En este informe determinaremos la estructura de un elemento óptico difractivo de geometría arbitraria partiendo del patrón de difracción formado en la pantalla de observación, usando como fuente de iluminación coherente la luz de un láser rojo. Desarrollamos el análisis matemático y deducción geométrica computacionalmente mediante Python, haciendo uso de la transformada de Fourier, la solución de Rayleigh-Sommerfeld y las aproximaciones convenientes de Fraunhofer o Fresnel.
+
+\medskip
+\textbf{Palabras claves:} Difracción, elemento difractivo, Fresnel, Fraunhofer, solución de Rayleigh-Sommerfeld, transformada de Fourier.
+\end{abstract}
+
+% Abstract in English
+\selectlanguage{english}
+\begin{abstract}
+In this article we determine the structure of a diffractive optical element with arbitrary geometry based on the diffraction pattern formed on the observation screen, using the light of a red laser as an illumination source. We develop mathematical analysis and geometric deduction computationally using Python, the Fourier transform, the Rayleigh-Sommerfeld solution and the convenient Fraunhofer or Fresnel approximations.
+
+\medskip
+\textbf{Keywords:} Diffraction, diffractive element, Fresnel, Fraunhofer, Rayleigh-Sommerfeld solution, Fourier transform.
+\end{abstract}
+
+\selectlanguage{spanish}
+
+\section{Introducción}
+Un ejemplo de la propagación rectilínea de la luz se puede observar en los rayos del sol a través de las nubes: cuando en medio de una fuente de luz se interpone un objeto, los rayos de esta ya no seguirán una línea recta entre la fuente y la pantalla de observación debido a los bordes del obstáculo; a este fenómeno se le llama \emph{difracción}. La difracción se da debido a que, por el principio de Huygens, todo punto de un frente de onda se comporta como un emisor de onda secundario. Es decir, cada punto infinitesimal del borde del obstáculo, que posteriormente será llamado elemento difractivo, se comporta como una fuente de onda individual, proveniente del rayo de la fuente que choca con ese punto del obstáculo. En consecuencia, se obtiene en la pantalla de observación la interferencia de infinitas fuentes de onda, resultado de cada uno de los infinitos puntos del borde del elemento difractivo.
+
+Los patrones de difracción observados en la pantalla son todos dependientes de la geometría y/o forma del obstáculo y están casi siempre representados en función de la intensidad, pues esta varía alrededor de toda figura obtenida. Para describir cuantitativamente este fenómeno, se utilizan herramientas matemáticas que permiten relacionar la forma del elemento difractivo con la distribución de intensidad en el plano de observación, esto es, las imágenes que tomamos de la pantalla después de haber sido la luz difractada. Entre ellas destacan la solución de Rayleigh-Sommerfeld y la transformada de Fourier. Bajo la aproximación de Fresnel, que es válida en el campo cercano cuando las variaciones angulares son pequeñas, la propagación de la onda se puede expresar aprovechando la propiedad de la transformada de Fourier como:
+
+\begin{equation}
+U_2(x,y) = \mathcal{F}^{-1} \left\{ H(f_x,f_y) \cdot \mathcal{F} \{ U_1(x,y) \} \right\},
+\end{equation}
+
+donde \( U_1(x,y) \) es la función de onda en la abertura y \( U_2(x,y) \) la función de onda en el plano de observación. Para elementos difractivos de geometría arbitraria, el uso de la transformada de Fourier permite obtener directamente la relación entre la forma del elemento y el patrón de difracción usando esta ecuación.
+
+La función de transferencia \( H(f_x,f_y) \) en la aproximación de Fresnel se puede expresar como:
+
+\begin{equation}
+H(f_x,f_y) = \exp\left[-i \pi \lambda z (f_x^2 + f_y^2)\right],
+\end{equation}
+
+con \( \lambda \) la longitud de onda y \( z \) la distancia de propagación.
+
+La implementación computacional de estos conceptos se llevó a cabo mediante Python usando las librerías de conocimiento público: OpenCV, Numpy y Matplotlib. El código desarrollado realiza la simulación de la propagación de la onda aplicando la transformada de Fourier bidimensional para obtener la función de onda en el plano de la pantalla, multiplicando por la función de transferencia y finalmente aplicando la transformada inversa, así se obtiene:
+
+\begin{equation}
+u_2(x,y) = \mathcal{F}^{-1}\{ H(f_x,f_y) \cdot \mathcal{F}\{ u_1(x,y) \} \},
+\end{equation}
+
+y la intensidad se obtiene como \( I(x,y) = |u_2(x,y)|^2 \).
+
+Esta metodología integra la solución teórica de la difracción con herramientas numéricas, permite determinar de forma precisa la estructura y periodicidad del elemento óptico difractivo, incluso cuando su geometría no es trivial. Además, el uso de una fuentes como el láser rojo es crucial para que se observen claramente los patrones de interferencia o difracción, ya que la coherencia espacial y temporal de la fuente garantiza la estabilidad y visibilidad de las franjas de difracción.
+
+\section{Objetivos}
+
+\textbf{Objetivo General:}
+Determinar ópticamente la estructura de un elemento difractivo. Usando una fuente de
+iluminación coherente y un sistema de adquisición de datos. Reportando la estructura del elemento óptico
+difractivo en términos de su periodicidad (resolución) y orientación relativa.
+
+\section{Metodología}
+
+\subsection{Implementación utilizada}  
+\begin{description}  
+    \item[Regla:] Instrumento de medición en forma de plancha delgada y rectangular que incluye una escala graduada longitudinal. Incertidumbre: 0.5~mm \((5.0 \times 10^{-4} \, \text{m})\).  
+    \item[Flexómetro:] Cinta métrica flexible graduada, utilizada para mediciones de mayor longitud. Incertidumbre: 1.0~mm \((1.0 \times 10^{-3} \, \text{m})\).  
+    \item[Calibrador:] Instrumento de medición preciso. Incertidumbre: $2 \times 10^{-5} \, \text{m}$
+    \item[Láser:] Dispositivo que emite un rayo de luz estrecho y coherente. Longitud de onda: \( 633 \times 10^{-9} \, \text{m} \).  
+    \item[Elementos ópticos difractivos:] Dispositivos de geometría desconocida que generan patrones de difracción; en total se utilizaron 2.  
+    \item[Rejilla:] Elemento óptico difractivo con una densidad de \(5.35 \times 10^5\) líneas por metro.  
+    \item[Lente:] Lente óptico utilizada para acercar la imagen que se forma en el infinito. La distancia focal, medida con el flexómetro, es de 1.401~m con una incertidumbre de \(1.0 \times 10^{-3} \, \text{m}\).  
+    \item[Soportes:] Materiales empleados para el montaje experimental.  
+\end{description}  
+
+\section{Desarrollo Experimental}  
+
+Se realizaron diferentes montajes experimentales con el propósito de analizar la difracción de un rayo láser rojo al atravesar distintos elementos ópticos difractivos. Las mediciones se llevaron a cabo utilizando instrumentos adecuados para garantizar la precisión de los resultados, incluyendo un flexómetro (incertidumbre de \(1.0 \times 10^{-3} \, \text{m}\)) y un calibrador (incertidumbre de \(2 \times 10^{-5} \, \text{m}\)).  
+
+\subsection{Descripción de los Montajes}  
+
+Para cada elemento difractivo, se configuró un sistema de iluminación con un láser de longitud de onda \(\lambda = 633 \times 10^{-9} \, \text{m}\), y se midieron las distancias relevantes del experimento, tales como la distancia entre el elemento y la pantalla de observación, y la separación entre máximos consecutivos en el patrón de difracción. Se estudiaron dos regímenes de difracción:  
+
+\subsection{Desarrollo}
+
+\begin{itemize}  
+    \item \textbf{Difracción de Fresnel (campo cercano):} Se utilizó un montaje en el cual el láser incidía directamente sobre el elemento difractivo y el patrón resultante se analizaba en la pantalla sin el uso de lentes adicionales.  
+    \item \textbf{Difracción de Fraunhofer (campo lejano):} Se incorporó una lente de distancia focal conocida (\(1.401 \pm 0.001 \, \text{m}\)) para proyectar la imagen del patrón en la pantalla y facilitar la medición de los máximos.  
+\end{itemize}  
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{montaje_fresnel.jpg}
+    \caption{Montaje de Fresnel}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{montaje_fraunhofer.jpg}
+    \caption{Montaje de Fraunhofer}
+  \end{subfigure}
+  \caption{Montajes experimentales para la difracción}
+  \label{fig:montajes}
+\end{figure}
+
+
+Los elementos ópticos difractivos analizados fueron una rejilla de difracción, un CD y un dispositivo GEM del CERN. La tabla \ref{tab:mediciones} resume las mediciones realizadas para cada caso.  
+
+\begin{table}[H]  
+\centering  
+\caption{Mediciones experimentales para diferentes elementos difractivos}  
+\label{tab:mediciones}  
+\begin{tabular}{lcccc}  
+\toprule  
+Elemento & Tipo de & Distancia & Distancia Máximos & Distancia \\  
+Difractivo & Difracción & Elemento-Pantalla (m) & Consecutivos (m) & Láser-Elemento (m) \\  
+\midrule  
+Rejilla & Fresnel & \num{0.130 \pm 0.001} & \num{0.12728 \pm 0.00002} & \num{0.516 \pm 0.001} \\  
+Rejilla & Fraunhofer* & \num{0.140 \pm 0.001} & N/A & N/A \\  
+CD & Fraunhofer & \num{0.140 \pm 0.001} & \num{0.13184 \pm 0.00002} & N/A \\  
+GEM (CERN) & Fresnel & \num{0.330 \pm 0.001} & \num{0.009 \pm 0.00002} & N/A \\  
+\bottomrule  
+\multicolumn{5}{l}{\small *Nota: Para el montaje de Fraunhofer, la distancia elemento-pantalla corresponde} \\  
+\multicolumn{5}{l}{\small a la distancia lente-pantalla.}  
+\end{tabular}  
+\end{table}  
+
+\subsection{Análisis de las Mediciones}  
+
+Cada una de las mediciones realizadas en los montajes experimentales tuvo un propósito específico:  
+
+\begin{itemize}  
+    \item Para la rejilla de difracción bajo la aproximación de Fresnel, se midió la distancia entre el láser y la rejilla (\(0.516 \pm 0.001 \, \text{m}\)), la distancia entre la rejilla y la pantalla (\(0.130 \pm 0.001 \, \text{m}\)) y la separación entre máximos consecutivos en el patrón difractado (\(0.12728 \pm 0.00002 \, \text{m}\)).  
+    \item Para la rejilla en el régimen de Fraunhofer, la distancia medida corresponde a la separación entre la lente y la pantalla (\(0.140 \pm 0.001 \, \text{m}\)), aunque la distancia entre máximos consecutivos está aún por definir.  
+    \item En el caso del CD, en el régimen de Fraunhofer, la distancia lente-pantalla es de \(0.140 \pm 0.001 \, \text{m}\), y la separación entre máximos consecutivos fue de \(0.13184 \pm 0.00002 \, \text{m}\).  
+    \item Para el dispositivo GEM del CERN, en el régimen de Fresnel, se midió la distancia entre el elemento y la pantalla (\(0.330 \pm 0.001 \, \text{m}\)), con una separación entre máximos consecutivos de \(0.009 \pm 0.00002 \, \text{m}\).  
+\end{itemize}  
+
+\subsection{Análisis computacional y procesamiento de imágenes experimentales}
+
+Los códigos en Python procesaron las imágenes obtenidas experimentalmente y aplicaron las transformaciones mencionadas en la introducción—en particular, la relación expresada en la ecuación (1) para la propagación del frente de onda y la definición de la función de transferencia en la ecuación (2)—de modo que se pudo obtener la estructura observada y compararla con la esperada teóricamente, según lo propuesto por el profesor Luis Felipe Ramírez García.
+
+Las imágenes capturadas del patrón de difracción fueron cargadas en Python y convertidas a escala de grises para realizar un análisis con menor ruido. Se definieron los parámetros relevantes para cada experimento, como la distancia entre el elemento y la pantalla ($z$), la longitud de onda del láser ($\lambda = 633\times10^{-9}$ m) y el tamaño del campo de observación. Posteriormente, la imagen fue normalizada y ajustada a unidades métricas para su correcta interpretación.
+
+En los experimentos en los que se aplicó la aproximación de Fresnel, se utilizó la propagación mediante la función de transferencia, tal como se expresa en la ecuación (2). Se aplicó la siguiente secuencia de pasos:
+\begin{enumerate}
+    \item Se calculó la transformada de Fourier de la imagen experimental, siguiendo la estructura de la ecuación (1).
+    \item Se multiplicó por la función de transferencia $H(f_x,f_y)$ correspondiente a Fresnel, de acuerdo con la ecuación (2).
+    \item Se aplicó la transformada inversa para obtener la imagen reconstruida del patrón de difracción, recuperando la distribución de intensidad dada por \( I(x,y) = |u_2(x,y)|^2 \) (ecuación (3)).
+\end{enumerate}
+
+En el caso de la aproximación de Fraunhofer, se simplificó el proceso al aplicar directamente la transformada de Fourier a la imagen experimental. Este método, válido en condiciones de campo lejano, asume que el patrón de difracción es proporcional a la distribución espectral del objeto difractivo. Se utilizó la FFT (transformada rápida de Fourier) seguida de un reacomodo de los componentes con \texttt{fftshift} para reconstruir el patrón, lo que permitió identificar claramente la posición de los máximos y mínimos. Esta técnica fue aplicada en los montajes correspondientes a la rejilla y al CD, facilitando la comparación entre los resultados experimentales y las predicciones teóricas de la difracción.
+
+\section{Resultados y Discusión}
+
+En esta sección se presentan y analizan los patrones de difracción obtenidos a partir de los experimentos realizados con distintos elementos difractivos. Las imágenes obtenidas fueron procesadas mediante los códigos en Python descritos anteriormente, aplicando las aproximaciones de Fresnel y Fraunhofer según corresponda. A continuación, se presentan los resultados obtenidos para cada experimento.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{difraccion-rejilla-fresnel.png}
+        \caption{Difracción de la rejilla con la aproximación de Fresnel.}
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{difraccion-rejilla-fraunhofer.png}
+        \caption{Difracción de la rejilla con la aproximación de Fraunhofer.}
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{difraccion-cd-fraunhofer.png}
+        \caption{Difracción del CD con la aproximación de Fraunhofer.}
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{difraccion-gem-fresnel.png}
+        \caption{Difracción del GEM con la aproximación de Fresnel.}
+    \end{subfigure}
+    \caption{Patrones de difracción obtenidos experimentalmente para distintos elementos ópticos difractivos.}
+    \label{fig:resultados-difraccion}
+\end{figure}
+
+\subsection{Difracción de la rejilla con la aproximación de Fresnel}
+
+En la figura~\ref{fig:resultados-difraccion}a se muestra el patrón de difracción generado por una rejilla de difracción, analizado mediante la aproximación de Fresnel. La imagen revela la distribución de intensidad del campo óptico en la pantalla de observación después de que la luz ha recorrido una distancia \( z \). Se observa que la propagación de la luz genera un patrón de interferencia característico, evidenciando la estructura periódica del elemento difractivo. La función de transferencia utilizada en la simulación permitió reconstruir con precisión la evolución del frente de onda, confirmando la validez del modelo teórico.
+
+\subsection{Errores en la aproximación de Fraunhofer para la rejilla}
+
+En la figura~\ref{fig:resultados-difraccion}b se presenta el patrón de difracción obtenido al intentar aplicar la aproximación de Fraunhofer para la rejilla. Sin embargo, en este experimento se cometió un error en la toma de datos, ya que se utilizó la distancia entre el láser y la lente en lugar de la distancia correcta entre la lente y la pantalla. Además, la distancia utilizada (\( z = 0.14 \) m) es relativamente pequeña en comparación con el criterio necesario para que la difracción de Fraunhofer sea aplicable. Como consecuencia, el patrón obtenido aún muestra contribuciones significativas de las curvaturas de onda, lo que indica que la difracción en este caso se encuentra en el régimen de Fresnel y no en el de Fraunhofer.
+
+\subsection{Difracción del CD con la aproximación de Fraunhofer}
+
+En la figura~\ref{fig:resultados-difraccion}c se observa el patrón de difracción generado por un CD, analizado mediante la aproximación de Fraunhofer. El resultado obtenido es similar al de la rejilla de difracción, lo cual era esperado debido a que un CD actúa estructuralmente como una rejilla de difracción bidimensional. 
+
+Los CDs poseen pistas circulares microscópicas con separaciones del orden de micrómetros, lo que provoca que la luz incidente se difracte de manera similar a como ocurre en una rejilla óptica. La periodicidad de las pistas, que es del orden de \( 1.6 \) µm, genera un patrón de interferencia con máximos y mínimos bien definidos. A pesar de que la disposición de las pistas en el CD es circular y no lineal, los resultados experimentales confirman que la estructura periódica del CD genera un patrón de difracción que sigue la ecuación de la rejilla de difracción.
+
+\subsection{Difracción del GEM con la aproximación de Fresnel}
+
+En la figura~\ref{fig:resultados-difraccion}d se presenta el patrón de difracción generado por un dispositivo GEM (Gas Electron Multiplier) del CERN, analizado mediante la aproximación de Fresnel. A diferencia de los patrones observados en la rejilla y el CD, aquí la distribución de la luz presenta una clara simetría hexagonal. 
+
+Este resultado indica que el objeto difractivo posee una estructura periódica con simetría hexagonal, como ocurre en redes de microperforaciones o en ciertos cristales fotónicos. La forma del patrón confirma que la estructura del elemento difractivo no es una rejilla de líneas rectas, sino que posee un ordenamiento distinto, lo que proporciona información valiosa sobre su morfología. Este tipo de análisis es crucial en aplicaciones donde se busca caracterizar la geometría de materiales estructurados a escala microscópica.
+
+\section{Conclusiones}
+% Se presentan las conclusiones obtenidas a partir del estudio.
+
+\begin{thebibliography}{9}
+    \bibitem{Alzate2007} 
+    H. Alzate López, \textit{Física de las Ondas}. Medellín, Colombia: Universidad de Antioquia, 2007.
+    
+    \bibitem{Goodman2017} 
+    J. W. Goodman, \textit{Introduction to Fourier Optics}, 4th ed. New York: W. H. Freeman, 2017.
+\end{thebibliography}
+
+\end{document}

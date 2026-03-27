@@ -24,3 +24,6 @@ env/
 *.xlsx
 *.pdf
 *.docx
+
+!Difracción_y_estructura_de_elementos_ópticos_periódicos.pdf
+!Prelaboratorio#2-Informe.pdf

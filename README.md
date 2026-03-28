@@ -72,7 +72,7 @@ This repository contains different types of files used for data collection and a
 This project is licensed under the terms of the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
-**Estiven Castrillón** - [LinkedIn](www.linkedin.com/in/estiven-castrillon-72823a253)
+**Estiven Castrillón** - [LinkedIn](https://www.linkedin.com/in/estiven-castrillon-72823a253/)
 
 ---
 

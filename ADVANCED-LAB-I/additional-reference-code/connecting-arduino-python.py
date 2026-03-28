@@ -1,37 +1,41 @@
+"""
+Code to connect Arduino with Python using the serial library. 
+The code reads distance measurements from the Arduino and plots them using 
+matplotlib.
+"""
+
 import serial
 import time
 import matplotlib.pyplot as plt
 
-# Configuración del puerto serial
+# Serial port configuration
 esp = serial.Serial("/dev/ttyUSB0", 115200, timeout=1)
 time.sleep(2)
 esp.write(b'a')
-distancias = []
+distances = []
 
-# Leer 10 líneas
+# Read 10 lines
 for i in range(10):
-    linea = esp.readline().decode().strip()
+    line = esp.readline().decode().strip()
 
-    while linea == "":
-        linea = esp.readline().decode().strip()
+    while line == "":
+        line = esp.readline().decode().strip()
 
-    print("Arduino:", linea)
-
-    # Extraer solo el número
+    # Extract only the number
     try:
-        valor = float(linea.split(":")[1].replace("cm", "").strip())
-        distancias.append(valor)
+        value = float(line)
+        distances.append(value)
     except:
-        print("error", linea)
+        print("error", line)
 
 esp.close()
-tiempo = list(range(1, len(distancias) + 1)) # eje de 1 a 10 segundos
+time_axis = list(range(1, len(distances) + 1))  # axis from 1 to 10 seconds
 plt.figure(figsize=(8, 5))
-plt.plot(tiempo, distancias, marker='o', linestyle='-', color='blue')
+plt.plot(time_axis, distances, marker='o', linestyle='-', color='blue')
 plt.ylim(0, 300)
-plt.title("Distancia medida por el sensor (10 muestras)")
-plt.xlabel("Número de la medida")
-plt.ylabel("Distancia (cm)")
+plt.title("Distance measured by the sensor (10 samples)")
+plt.xlabel("Measurement number")
+plt.ylabel("Distance (cm)")
 plt.grid(True)
 
 plt.show()

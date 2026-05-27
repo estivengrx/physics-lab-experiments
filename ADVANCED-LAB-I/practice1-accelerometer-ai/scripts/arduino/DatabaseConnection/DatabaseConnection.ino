@@ -97,7 +97,7 @@ void loop() {
   Serial.print("Gesto: ");
   Serial.println(gesto);
 
-  if (Firebase.setInt(fbdo, "/movimiento", gesto)) {
+  if (Firebase.pushInt(fbdo, "/movimientos", gesto)) {
     Serial.println("Firebase OK");
   } else {
     Serial.println(fbdo.errorReason());

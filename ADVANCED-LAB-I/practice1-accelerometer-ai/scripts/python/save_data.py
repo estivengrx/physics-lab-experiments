@@ -46,16 +46,32 @@ def take_data(take_gesture: int,
         - Data is collected, scaled down by a factor of 10, and stored in the global `data` dictionary.
         - The serial connection is closed after data collection.
     """
+    from time import sleep
+    data[take_gesture] = []
     ser = setup('/dev/ttyUSB0')
+    sleep(2)
     print(f"Collecting data for gesture {take_gesture}...")   
-    ser.write(b"a")  # sends a signal to the microcontroller to start sending data
+    ser.write(b"a")
+    sleep(0.1)
 
-    for _ in range(take_samples):  # collect the specified number of samples for one gesture
+    samples_collected = 0
+    while samples_collected < take_samples:
         line = ser.readline().decode().strip()
-        values = list(map(float, line.split(',')))
-        data[take_gesture].append(values)
+        if not line:
+            continue
+        if line == "FIN":
+            print("ESP32 finished sending data")
+            break
+        try:
+            values = list(map(float, line.split(',')))
+            if len(values) == 3:
+                data[take_gesture].append(values)
+                samples_collected += 1
+        except ValueError:
+            print("Invalid line:", line)
 
-    data[take_gesture] = np.array(data[take_gesture]) / 10 # convert list to numpy array and scale down
+    print(f"Collected {len(data[take_gesture])} samples for gesture {take_gesture}")
+    data[take_gesture] = np.array(data[take_gesture]) / 10
     ser.close()
 
 def save_data(labels_file_name: str, 
@@ -106,7 +122,8 @@ def save_data(labels_file_name: str,
         print() # Move to the next line after the countdown
 
     # Save the collected data to csv file
-    pd.DataFrame(data).to_csv(train_data_path, index=False, header=False)
+    all_data = np.vstack([data[g] for g in range(3)])  # shape (900, 3)
+    pd.DataFrame(all_data).to_csv(train_data_path, index=False, header=False)
     print(f"Data saved to '{train_data_path}' successfully.")
 
 def run_data_collection():

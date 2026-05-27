@@ -63,7 +63,7 @@ def model_training(model: Sequential,
     train_data_path = BASE_DIR / "data" / train_data_name
 
     # Reading data
-    train_data = pd.read_csv(train_data_path, header=0).values
+    train_data = pd.read_csv(train_data_path, header=None).values
     train_labels = pd.read_csv(labels_path, header=None, delimiter='\t').values.flatten()
     
     # Model training

@@ -10,14 +10,13 @@ int contador = 0;
 
 void setup() {
   Serial.begin(115200);
-  Wire.begin();
+  Wire.begin(21, 22);
 
   if (!mpu.begin()) {
     Serial.println("No se encontró el MPU6050");
     while (1);
   }
 
-  Serial.println("Listo. Envía 'a' para iniciar la adquisición.");
 }
 
 void loop() {
@@ -44,7 +43,7 @@ void loop() {
       contador++;
       delay(50); // ~20 Hz
 
-    } else {
+    } else if (datoLeido != 0){
       Serial.println("FIN");
       datoLeido = 0;  // detener adquisición hasta que envíes 'a' otra vez
     }

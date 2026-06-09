@@ -36,6 +36,6 @@ env/
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.keras
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.tflite
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.h
-
+!ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.pdf
 # Environmental variables in Config file for Arduino
 ADVANCED-LAB-I/practice1-accelerometer-ai/scripts/arduino/DatabaseConnection/config.h

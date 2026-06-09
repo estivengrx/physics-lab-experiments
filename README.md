@@ -17,6 +17,10 @@ Here is the project structure (only the main files are shown below for brevity),
 - additional-reference-code/
   - connecting-arduino-python.py
 
+<iframe src="ADVANCED-LAB-I/practice1-accelerometer-ai/docs/main.pdf" width="100%" height="600px">
+</iframe>
+
+
 ## EXP-PHY-II
 - 1.0-normal-poisson-distribution-CLT/
   - 1.0-geiger_detector_and_marbles_diameters.ipynb

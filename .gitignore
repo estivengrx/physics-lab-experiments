@@ -37,5 +37,20 @@ env/
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.tflite
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.h
 !ADVANCED-LAB-I/practice1-accelerometer-ai/**/*.pdf
+!ADVANCED-LAB-I/practice4-fpga-charging-capacitor/docs/**/*.pdf
+!ADVANCED-LAB-I/practice4-fpga-charging-capacitor/docs/figures/**/*.png
 # Environmental variables in Config file for Arduino
 ADVANCED-LAB-I/practice1-accelerometer-ai/scripts/arduino/DatabaseConnection/config.h
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.lof
+*.lot

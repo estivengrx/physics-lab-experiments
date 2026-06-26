@@ -85,9 +85,9 @@ for i, idx in enumerate(inicios_descarga, 1):
 # Figura original
 plt.figure(figsize=(10, 6))
 plt.plot(df["Voltaje"], color='blue', linewidth=1.2)
-plt.title("Curva de carga y descarga del condensador (datos importados)", fontsize=14)
-plt.xlabel("Número de muestra", fontsize=12)
-plt.ylabel("Voltaje normalizado (V/Vmax)", fontsize=12)
+plt.title("Curva de carga y descarga del condensador (datos importados)", fontsize=18)
+plt.xlabel("Número de muestra", fontsize=15)
+plt.ylabel("Voltaje normalizado (V/Vmax)", fontsize=15)
 plt.grid(True, which='both', linestyle='--', linewidth=0.7)
 plt.minorticks_on()
 plt.savefig(OUTPUT_FIG, dpi=300, bbox_inches='tight')
@@ -108,7 +108,7 @@ for i, idx in enumerate(inicios_carga, 1):
                 label=f"Inicio carga #{i}  (m={idx})")
     ax1.annotate(f" ↑ carga #{i}\n m={idx}",
                  xy=(idx, v[idx]), xytext=(idx + 8, v[idx] + 0.015),
-                 fontsize=8, color='green',
+                 fontsize=11, color='green',
                  arrowprops=dict(arrowstyle='->', color='green', lw=0.8))
 
 for i, idx in enumerate(inicios_descarga, 1):
@@ -116,13 +116,13 @@ for i, idx in enumerate(inicios_descarga, 1):
                 label=f"Inicio descarga #{i}  (m={idx})")
     ax1.annotate(f" ↓ desc. #{i}\n m={idx}",
                  xy=(idx, v[idx]), xytext=(idx + 8, v[idx] - 0.025),
-                 fontsize=8, color='red',
+                 fontsize=11, color='red',
                  arrowprops=dict(arrowstyle='->', color='red', lw=0.8))
 
-ax1.set_xlabel("Número de muestra", fontsize=11)
-ax1.set_ylabel("Voltaje normalizado (V/Vmax)", fontsize=11)
-ax1.set_title("Detección automática de transiciones de carga/descarga", fontsize=12)
-ax1.legend(fontsize=8, loc='upper right')
+ax1.set_xlabel("Número de muestra", fontsize=15)
+ax1.set_ylabel("Voltaje normalizado (V/Vmax)", fontsize=15)
+ax1.set_title("Detección automática de transiciones de carga/descarga", fontsize=18)
+ax1.legend(fontsize=12, loc='upper right')
 ax1.grid(True, linestyle='--', linewidth=0.6)
 
 plt.tight_layout()

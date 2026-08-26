@@ -40,6 +40,7 @@ env/
 !ADVANCED-LAB-I/practice4-fpga-charging-capacitor/docs/**/*.pdf
 !ADVANCED-LAB-I/practice4-fpga-charging-capacitor/docs/figures/**/*.png
 !ADVANCED-LAB-I/final-project-measurement-sound-speed-temperature/docs/main-final-project.pdf
+!ADVANCED-LAB-I/practice2-curve-i-v-labview/docs/main-practice2.pdf
 # Environmental variables in Config file for Arduino
 ADVANCED-LAB-I/practice1-accelerometer-ai/scripts/arduino/DatabaseConnection/config.h
 
@@ -56,3 +57,5 @@ ADVANCED-LAB-I/practice1-accelerometer-ai/scripts/arduino/DatabaseConnection/con
 *.lof
 *.lot
 *.jpeg
+*.bcf
+*.xml

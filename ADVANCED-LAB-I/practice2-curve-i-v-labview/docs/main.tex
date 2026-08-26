@@ -1,0 +1,384 @@
+\documentclass[conference,10pt,letterpaper]{IEEEtran}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{adjustbox}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\usepackage{wrapfig}
+\usepackage[hidelinks]{hyperref}
+\usepackage[backend=biber,style=ieee]{biblatex}
+\addbibresource{references.bib}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,
+    text centered, draw=black, very thick, fill=red!25, font=\bfseries]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text width=6cm,
+    text centered, draw=black, thick, fill=orange!25]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110,
+    minimum width=3cm, minimum height=1cm, text width=5.4cm, text centered,
+    draw=black, thick, fill=blue!20]
+\tikzstyle{decision} = [diamond, aspect=2, minimum width=3cm, minimum height=1cm,
+    text width=2.6cm, text centered, draw=black, thick, fill=green!25, inner sep=0pt]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+\title{Curva I-V de LEDs usando Arduino y LabVIEW}
+
+\author{
+\IEEEauthorblockN{
+Estiven Castrillon Alzate\IEEEauthorrefmark{1},
+Ana María Hurtado\IEEEauthorrefmark{2},
+Ana Sofía Mora\IEEEauthorrefmark{3}
+}
+\IEEEauthorblockA{
+Instituto de Física, Universidad de Antioquia, Medellín, Colombia\\
+\IEEEauthorrefmark{1}\href{mailto:estiven.castrillon2@udea.edu.co}{estiven.castrillon2@udea.edu.co},
+\IEEEauthorrefmark{2}\href{mailto:ana.hurtador@udea.edu.co}{ana.hurtador@udea.edu.co},
+\IEEEauthorrefmark{3}\href{mailto:ana.mora@udea.edu.co}{ana.mora@udea.edu.co}
+}
+}
+
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+En este trabajo se realizó la caracterización eléctrica de cinco diodos emisores de luz de color rojo, verde, azul, amarillo y blanco, mediante la obtención de sus curvas I-V. La práctica se centró en la determinación del voltaje umbral $V_f$ y la resistencia dinámica $r_d$ con el fin de validar experimentalmente la ecuación del diodo de Shockley 
+Para la adquisición de datos se implementó un microcontrolador ESP32, integrada con el software LabVIEW para el procesamiento y registro de la información. Los resultados obtenidos demuestran que el voltaje umbral es inversamente proporcional a la longitud de onda de emisión, validando la influencia de la brecha de energía del material en la respuesta eléctrica del diodo.
+
+\end{abstract}
+
+\section{Introducción}
+
+Un LED (light-emitting diode) es un diodo semiconductor de tipo P-N diseñado para emitir luz de diferentes colores, para entender el funcionamiento de la unión de tipo P-N es necesario partir de la ecuación del diodo de Shockley:
+
+\begin{equation}
+    I = I_S \left( e^{\frac{V_D}{nV_T}} - 1 \right)
+\end{equation}
+
+Esta ecuación describe matemáticamente la transición del LED de un estado de alta impedancia a uno de baja impedancia [\cite{1}]. En el estado de alta impedancia, la corriente no logra atravesar el LED debido a su resistencia interna, sin embargo, una vez se alcanza y se supera el voltaje umbral $V_f$ es cuando comienza a transicionar al estado de baja impedancia permitiendo que el LED comience a emitir luz. Es importante mencionar que este punto de inflexión no es el mismo para cualquier LED, sino que presenta una dependencia con la longitud de onda de la luz emitida.  Debido a que cada color corresponde a un nivel de energía distinto en el espectro electromagnético, el voltaje requerido para iniciar la transición varía, de este modo, los LEDs que emiten luz en longitudes de onda más cortas poseen una brecha de energía más amplia [\cite{2}]. Esta brecha de energía o bandgap, como lo analizan Martí et al. [\cite{3}] en su estudio sobre el equilibrio detallado y la ecuación de Shockley, depende directamente de la composición química del material semiconductor utilizado para lograr el color específico, por ejemplo, mientras que los LEDs rojos e infrarrojos suelen fabricarse con aleaciones de Arseniuro de Galio (GaAs) que permiten saltos energéticos pequeños, los LEDs azules y verdes requieren materiales como el Nitruro de Galio e Indio (InGaN) los cuales generan una barrera mucho más amplia. De este modo, la naturaleza del material dicta la barrera energética que se debe superar, lo que se traduce en una mayor necesidad de voltaje para que el LED logre pasar al estado de baja impedancia. Sin embargo, una vez que el LED entra en este estado de conducción, no se comporta como un conductor perfecto, sino que presenta una resistencia dinámica ($r_d$) que varía según la corriente. Bajo este marco, esta práctica tiene como objetivo medir la curva I-V de cinco LEDs con diferentes longitudes de onda (rojo, verde, azul, amarillo y blanco) para obtener su voltaje umbral y comparar el comportamiento entre colores. Para lograr esto de forma eficiente se utilizó el software LabVIEW para el registro y procesamiento de la información, integrado con un ESP32 el cuál actúa como interfaz para la adquisición de datos. 
+
+\section{Montaje}
+
+\subsection{Materiales}
+
+\begin{itemize}
+    \item \textbf{Microcontrolador ESP32:} Utilizado como interfaz de hardware para generar el barrido de voltaje.
+    \item \textbf{Diodos LED):} Cinco dispositivos de diferentes colores (rojo, verde, azul, amarillo y blanco) para obtener sus curvas I-V.
+    \item \textbf{Resistencia de $1\,k\Omega$:} Permite el cálculo de la corriente mediante la medición de la caída de voltaje.
+    \item \textbf{Protoboard y conductores:} Para el ensamblaje físico y la interconexión de los componentes del circuito.
+    \item \textbf{Arduino IDE:} Entorno de desarrollo utilizado para programar la lógica de control y la comunicación serial en el microcontrolador.
+    \item \textbf{LabVIEW:} Plataforma de instrumentación virtual empleada para el registro y procesamiento de la información.
+\end{itemize}
+
+\section{Resultados}
+
+En la figura \ref{fig:placeholder} se presentan las curvas corriente-voltaje (I-V) para los diodos seleccionados en esta práctica. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{gráfica.png}
+    \caption{Curvas I-V de los LEDs analizados.}
+    \label{fig:placeholder}
+\end{figure}
+
+El voltaje umbral ($V_f$) de cada diodo se identificó aplicando un ajuste lineal de mínimos cuadrados realizado en Python, tomando los datos de voltaje y corriente y proyectando una recta tangente hacia el eje X para minimizar el ruido debido a la resolución del ESP32. Adicionalmente, al obtener la pendiente de las rectas tangentes, obtenemos también la resistencia dinámica ($r_d$), dado que:
+
+\begin{equation}
+m=\frac{\Delta I}{\Delta V}, \hspace{5mm} r_d=\frac{\Delta V}{\Delta I}
+=\left(\frac{\Delta I}{\Delta V}\right)^{-1}
+=\frac{1}{m}
+\end{equation}
+
+Los valores obtenidos aplicando este procedimiento se resumen en el cuadro \ref{tab:parametros_led}.
+
+\begin{table}[H]
+\centering
+\caption{$V_f$ y $r_d$ para los LEDs analizados.}
+\label{tab:parametros_led}
+\begin{tabular}{lcc}
+\hline
+\textbf{LED} & \textbf{$V_f$ (V)} & \textbf{$r_d$ ($\Omega$)} \\
+\hline
+Rojo     & 1.590 & 0.05 \\
+Amarillo & 1.684 & 0.05 \\
+Verde    & 2.076 & 0.06 \\
+Blanco   & 2.411 & 0.10 \\
+Azul     & 2.640 & 0.59 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Conclusiones}
+
+A partir de los resultados presentados se observa una clara tendencia ascendente en el voltaje umbral a medida que disminuye la longitud de onda de emisión. El LED rojo presenta el voltaje umbral más bajo (1.590V), mientras que el azul presenta el más alto (2.640V), lo cual valida de forma experimental que el potencial eléctrico necesario para realizar la transción a un estado de baja impedancia está directamente ligado al color del LED.
+En cuanto a la resistencia dinámica, se muestra que el LED rojo y el amarillo ofrecen una resistencia casi nula (0.05$\Omega$) una vez entran en conducción, lo cual se refleja con una subida casi vertical en la gráfica de su curva I-V, por el contrario, el LED azul presenta una resistencia casi doce veces mayor (0.59$\Omega$), por lo que podemos observar una mayor inclinación en su curva. Esta diferencia la podemos atribuir nuevamente al tipo de material utilizado para fabricar cada color, el cual puede permitir que los electrones fluyan con mayor o menor facilidad a través del diodo.
+
+
+\begin{thebibliography}{00}
+
+\bibitem{1} W. H. Schroen, ``Characteristics of a High-Current, High-Voltage Shockley Diode,'' \textit{IEEE Trans. Electron Devices}, vol. 17, no. 9, pp. 694--705, Sep. 1970.
+
+\bibitem{2} K. Dawood, B. Alboyaci, M. Sengul, and I. G. Tekdemir, ``Light Wavelength and Power Quality Characteristics of CFL and LED Lamps under Different Voltage Harmonic Levels,'' \textit{Int. J. Eng. Technol. (IJET)}, vol. 3, no. 1, pp. 19--26, Mar. 2017.
+
+\bibitem{3} A. Martí, J. L. Balenzategui, and R. F. Reyna, ``Photon recycling and Shockley's diode equation,'' \textit{J. Appl. Phys.}, vol. 82, no. 8, pp. 4067--4075, Oct. 1997.
+
+\end{thebibliography}
+
+\clearpage
+\onecolumn
+\appendix
+
+% ============================================================
+\section{Diagrama de flujo del código en LabVIEW}
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max totalheight=0.93\textheight, max width=\textwidth, keepaspectratio}{%
+    \begin{tikzpicture}[scale=0.78, every node/.style={scale=0.78}]
+
+% ===================== TRONCO PRINCIPAL: INICIALIZACIÓN =====================
+\node[startstop] (start)      at (0,0)     {INICIO};
+
+\node[process]   (cfgVisa)    at (0,-3.0)  {%
+    Configurar puerto serie VISA\\
+    (\texttt{VISA Configure Serial Port}, 115200 baudios)};
+
+\node[process]   (errHandler) at (0,-6.2)  {%
+    \texttt{Simple Error Handler.vi}\\
+    (verificar y mostrar errores de configuración)};
+
+\node[process]   (crearArchivo) at (0,-9.8) {%
+    Crear/abrir archivo de texto ``CURVA DEL DIODO''\\
+    (encabezado: fecha/hora, columnas\\
+    ``Corriente mA'' / ``Voltaje V'')};
+
+\node[process]   (enviarA)    at (0,-13.2) {%
+    \texttt{VISA Write}: enviar el carácter\\
+    \texttt{'a'} al Arduino (inicia el barrido)};
+
+\node[process]   (wait50)     at (0,-15.8) {%
+    Esperar 50 ms};
+
+% ===================== BUCLE PRINCIPAL (WHILE LOOP) =====================
+\node[decision]  (d1)         at (0,-18.6) {%
+    ¿\texttt{Bytes at Port}\\ \texttt{> 0}?};
+
+\node[process]   (visaRead)   at (0,-21.6) {%
+    \texttt{VISA Read}: leer una\\
+    línea de datos del puerto serie};
+
+\node[decision]  (d2)         at (0,-24.6) {%
+    ¿dato leído ==\\ \texttt{"FIN"}?};
+
+\node[process]   (parseData)  at (0,-27.8) {%
+    Convertir el texto a números\\
+    (separador \texttt{';'}): corriente, voltaje};
+
+\node[process]   (indicators) at (0,-30.6) {%
+    Actualizar los indicadores\\
+    ``corriente'' y ``voltaje''};
+
+\node[process]   (buildArr)   at (0,-33.4) {%
+    Agregar los nuevos valores a los\\
+    arreglos acumulados\\
+    (\texttt{Build Array} + registros de desplazamiento)};
+
+\node[process]   (xyGraph)    at (0,-36.8) {%
+    Actualizar el gráfico XY\\
+    (\texttt{Build XY Graph})};
+
+\node[process]   (setStopFalse) at (0,-39.6) {%
+    \texttt{parada = Falso}};
+
+% ===================== RAMA DE SALIDA (d2 = Sí) =====================
+\node[process]   (setStopTrue) at (7,-24.6) {%
+    \texttt{parada = Verdadero}\\
+    (detener el bucle)};
+
+\node[process]   (visaClose)  at (7,-27.6) {%
+    \texttt{VISA Close}\\
+    (cerrar comunicación serie)};
+
+\node[process]   (closeFile)  at (7,-30.4) {%
+    \texttt{Close File}\\
+    (cerrar archivo de texto)};
+
+\node[startstop] (endNode)    at (7,-33.2) {FIN};
+
+% ===================== FLECHAS DEL TRONCO PRINCIPAL =====================
+\draw[arrow] (start)        -- (cfgVisa);
+\draw[arrow] (cfgVisa)      -- (errHandler);
+\draw[arrow] (errHandler)   -- (crearArchivo);
+\draw[arrow] (crearArchivo) -- (enviarA);
+\draw[arrow] (enviarA)      -- (wait50);
+\draw[arrow] (wait50)       -- (d1);
+
+\draw[arrow] (d1)       -- (visaRead)  node[midway, right] {Sí};
+\draw[arrow] (visaRead) -- (d2);
+
+\draw[arrow] (d2)         -- (parseData)  node[midway, right] {No};
+\draw[arrow] (parseData)  -- (indicators);
+\draw[arrow] (indicators) -- (buildArr);
+\draw[arrow] (buildArr)   -- (xyGraph);
+\draw[arrow] (xyGraph)    -- (setStopFalse);
+
+% ===================== RAMA DE SALIDA: d2 = Sí =====================
+\draw[arrow] (d2.east)      -- (setStopTrue.west) node[midway, above] {Sí};
+\draw[arrow] (setStopTrue)  -- (visaClose);
+\draw[arrow] (visaClose)    -- (closeFile);
+\draw[arrow] (closeFile)    -- (endNode);
+
+% ===================== d1 = No: siguiente iteración =====================
+\draw[arrow] (d1.west) -- (-4,-18.6) -- (-4,-16.6) -- (d1.north);
+\node at (-4.6,-17.6) {No};
+
+% ===================== RETORNO AL INICIO DEL BUCLE =====================
+\draw[arrow] (setStopFalse.west) -- (-9,-39.6) -- (-9,-18.6) -- (d1.west);
+\node[align=center] at (-10.6,-29) {Continúa\\ el bucle};
+
+    \end{tikzpicture}
+    }%
+    \caption{Diagrama de flujo del procedimiento implementado en LabVIEW.}
+    \label{fig:flujo_labview}
+\end{figure}
+
+% ============================================================
+\clearpage
+
+\section{Diagrama de flujo del código en Arduino}
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{max totalheight=0.93\textheight, max width=\textwidth, keepaspectratio}{%
+    \begin{tikzpicture}[scale=0.72, every node/.style={scale=0.72}]
+
+% ===================== TRONCO PRINCIPAL =====================
+\node[startstop] (start)     at (0,0)     {INICIO};
+
+\node[process]   (cfg1)      at (0,-3.4)  {%
+    \texttt{Serial.begin(115200);}\\
+    \texttt{pinMode(led, OUTPUT);}\\
+    \texttt{digitalWrite(led, LOW);}\\
+    \texttt{dacWrite(DatoDac, 0);}};
+
+\node[process]   (cfg2)      at (0,-6.4)  {%
+    \texttt{analogSetAttenuation(ADC\_11db);}};
+
+\node[decision]  (d1)        at (0,-9.0)  {%
+    ¿\texttt{Serial.available()}\\
+    \texttt{> 0}?};
+
+\node[process]   (readDato)  at (0,-12.2) {%
+    \texttt{datoLeido = Serial.read();}};
+
+\node[decision]  (d2)        at (0,-15.0) {%
+    ¿\texttt{datoLeido}\\
+    \texttt{== 'a'}?};
+
+\node[process]   (ledOn)     at (0,-17.8) {%
+    \texttt{digitalWrite(led, HIGH);}};
+
+\node[process]   (iInit)     at (0,-20.0) {%
+    \texttt{i = 0;}};
+
+\node[decision]  (d3)        at (0,-22.6) {%
+    ¿\texttt{i < 256}?};
+
+\node[process]   (dacW)      at (0,-25.6) {%
+    \texttt{dacWrite(DatoDac, i);}};
+
+\node[process]   (delay100)  at (0,-28.0) {%
+    \texttt{delay(100);}\\
+    (espera de estabilización)};
+
+\node[process]   (readADC)   at (0,-31.4) {%
+    Promediar 10 lecturas de \texttt{adc2} (V1) y \texttt{adc3} (V2)\\
+    (bucle interno \texttt{k = 0..9}, con \texttt{delay(2)})};
+
+\node[process]   (calcV)     at (0,-35.0) {%
+    \texttt{voltaje1 = (suma1/10)*(ADC\_REF/ADC\_RES);}\\
+    \texttt{voltaje2 = (suma2/10)*(ADC\_REF/ADC\_RES);}};
+
+\node[process]   (calcID)    at (0,-38.2) {%
+    \texttt{voltajeDiodo = voltaje2;}\\
+    \texttt{corrienteDiodo = ((voltaje1 - voltaje2)/R)*1000;}};
+
+\node[io]        (sendSerial) at (0,-41.4) {%
+    \texttt{Serial.print(corrienteDiodo);}\\
+    \texttt{Serial.print(";");}\\
+    \texttt{Serial.println(voltajeDiodo);}};
+
+\node[process]   (iInc)      at (0,-44.4) {%
+    \texttt{i = i + 1;}};
+
+% ===================== RAMA "FIN DE MEDIDA" (d3 = No) =====================
+\node[io]        (finMsg)    at (7,-22.6) {%
+    \texttt{Serial.println("FIN");}};
+
+\node[process]   (ledOff)    at (7,-25.6) {%
+    \texttt{digitalWrite(led, LOW);}\\
+    \texttt{dacWrite(DatoDac, 0);}};
+
+\node[process]   (delay50)   at (7,-28.4) {%
+    \texttt{delay(50);}};
+
+% ===================== FLECHAS DEL TRONCO PRINCIPAL =====================
+\draw[arrow] (start) -- (cfg1);
+\draw[arrow] (cfg1)  -- (cfg2);
+\draw[arrow] (cfg2)  -- (d1);
+
+\draw[arrow] (d1)       -- (readDato) node[midway, right] {Sí};
+\draw[arrow] (readDato) -- (d2);
+\draw[arrow] (d2)       -- (ledOn)    node[midway, right] {Sí};
+\draw[arrow] (ledOn)    -- (iInit);
+\draw[arrow] (iInit)    -- (d3);
+\draw[arrow] (d3)       -- (dacW)     node[midway, right] {Sí};
+\draw[arrow] (dacW)     -- (delay100);
+\draw[arrow] (delay100) -- (readADC);
+\draw[arrow] (readADC)  -- (calcV);
+\draw[arrow] (calcV)    -- (calcID);
+\draw[arrow] (calcID)   -- (sendSerial);
+\draw[arrow] (sendSerial) -- (iInc);
+
+% ===================== RAMA "FIN DE MEDIDA" =====================
+\draw[arrow] (d3.east) -- (finMsg.west) node[midway, above] {No};
+\draw[arrow] (finMsg)  -- (ledOff);
+\draw[arrow] (ledOff)  -- (delay50);
+
+% ===================== BIFURCACIONES "No" hacia delay(50) =====================
+\draw[arrow] (d1.east) -- (11,-9.0)  -- (11,-28.4) -- (delay50.east);
+\node at (2.3,-8.6)  {No};
+
+\draw[arrow] (d2.east) -- (11,-15.0) -- (11,-28.4) -- (delay50.east);
+\node at (2.3,-14.6) {No};
+
+% ===================== RETORNO AL INICIO DE loop() =====================
+\draw[arrow] (delay50.west) -- (-11,-28.4) -- (-11,-9.0) -- (d1.west);
+\node[align=center] at (-13,-18.5) {Reinicia\\ \texttt{void loop()}};
+
+% ===================== RETORNO DEL BUCLE for (barrido del DAC) =====================
+\draw[arrow] (iInc.west) -- (-7,-44.4) -- (-7,-22.6) -- (d3.west);
+\node[align=center] at (-9,-33.5) {Repite\\ (\texttt{i++})};
+
+    \end{tikzpicture}
+    }%
+    \caption{Diagrama de flujo del procedimiento implementado en Arduino.}
+    \label{fig:flujo_arduino}
+\end{figure}
+
+\end{document}

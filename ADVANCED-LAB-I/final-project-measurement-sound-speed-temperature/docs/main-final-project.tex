@@ -1,0 +1,260 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\begin{document}
+
+\title{Análisis termodinámico y experimental de la velocidad del sonido en aire a temperatura variable}
+
+\author{
+    \IEEEauthorblockN{
+        Ana María Hurtado\IEEEauthorrefmark{1},
+        Ana Sofía Mora\IEEEauthorrefmark{2},
+        Estiven Castrillon\IEEEauthorrefmark{3}
+    }
+    \IEEEauthorblockA{
+        Instituto de Física, Universidad de Antioquia \\
+        Laboratorio Avanzado 1 - Junio 2025 \\
+        \IEEEauthorrefmark{1}\href{mailto:ana.hurtador@udea.edu.co}{ana.hurtador@udea.edu.co} \\
+        \IEEEauthorrefmark{2}\href{mailto:ana.mora@udea.edu.co}{ana.mora@udea.edu.co} \\
+        \IEEEauthorrefmark{3}\href{mailto:estiven.castrillon2@udea.edu.co}{estiven.castrillon2@udea.edu.co}
+    }
+}
+
+\maketitle
+
+\begin{abstract}
+Se presenta un estudio experimental de la dependencia de la velocidad del sonido en el aire con la temperatura, empleando un sistema de bajo costo basado en un microcontrolador ESP32, un sensor ultrasónico HC-SR04 y un sensor DHT11, en un rango de $25^{\circ}\text{C}$ a $71^{\circ}\text{C}$, a partir de $n=463$ mediciones distribuidas en cinco repeticiones independientes, se realizó un ajuste lineal por mínimos cuadrados, obteniendo una pendiente de $(0.260 \pm 0.024)\,\text{m/s}\cdot^{\circ}\text{C}^{-1}$ y un intercepto de $(350.0 \pm 1.2)\,\text{m/s}$, valores contrastados con el modelo teórico de Kinsler \textit{et al.} ($0.606\,\text{m/s}\cdot^{\circ}\text{C}^{-1}$, $331.3\,\text{m/s}$). 
+El agrupamiento de los datos en bins de temperatura de \SI{1}{\celsius} permitió incrementar el coeficiente de determinación de $R^2=0.209$ a $R^2=0.580$, evidenciando un desplazamiento sistemático de aproximadamente \SI{19}{\meter\per\second} respecto a la predicción teórica, atribuido principalmente a la inercia térmica del sensor DHT11 y a la latencia de procesamiento del microcontrolador.
+\end{abstract}
+
+% % =============================================================
+\section{Introducción}
+El estudio de la velocidad de propagación de las ondas acústicas en medios gaseosos constituye uno de los pilares fundamentales de la física clásica y la termodinámica de fluidos \cite{morse1986}. Desde una perspectiva teórica, la velocidad del sonido en un gas ideal depende intrínsecamente de sus propiedades elásticas y cinéticas, siendo la temperatura absoluta del medio el factor determinante en la energía cinética promedio de las partículas moleculares \cite{kinsler2000}, \cite{pierce1989}. Clásicamente, este comportamiento se modela mediante la aproximación lineal deducida de la ecuación de estado, donde las variaciones térmicas modifican localmente la densidad y el módulo de compresibilidad adiabático del fluido \cite{holman2011}.
+
+A nivel experimental, la caracterización de este fenómeno ha evolucionado significativamente gracias al desarrollo de la electrónica de bajo costo y los sistemas embebidos de hardware libre. La integración de microcontroladores de alto rendimiento, como el ESP32, junto con transductores ultrasónicos de bajo costo (v.g., el HC-SR04), ha permitido diseñar sistemas de adquisición de datos en tiempo real capaces de registrar tiempos de vuelo con resoluciones de microsegundos \cite{acebott2024}. No obstante, estos arreglos experimentales de laboratorio a menudo se enfrentan a limitaciones intrínsecas relacionadas con la resolución nominal de los sensores y la aparición de gradientes térmicos no homogéneos dentro de las cámaras de prueba \cite{dally1993}.
+
+En la practica investigativa, es usal recurrir a técnicas de regresión lineal por mínimos cuadrados y algoritmos de agrupamiento de datos (binning) para mitigar el ruido experimental punto a punto y evaluar la robustez de los modelos empíricos frente a las predicciones analíticas de la literatura \cite{montgomery2012}. Asimismo, variables ambientales secundarias como la humedad relativa del aire introducen desviaciones sutiles en la masa molecular promedio del medio, lo que abre una ventana para futuros análisis sobre el comportamiento de la velocidad de fase en entornos de propagación controlados \cite{cramer1993}.
+
+El presente trabajo expone el análisis cinemático y termodinámico de la velocidad del sonido en el aire dentro de un rango de temperatura comprendido entre $25\,^{\circ}\text{C}$ y $71\,^{\circ}\text{C}$. A través de un diseño experimental basado en un eco-sensor ultrasónico y un sensor de temperatura digital, se evalúan de forma independiente cinco repeticiones del ciclo de calentamiento y enfriamiento. El propósito fundamental es contrastar los parámetros experimentales obtenidos (intercepto y pendiente local) con el modelo analítico clásico de Kinsler et al. \cite{kinsler2000}, discutiendo la dispersión estadística ($R^2$) y la viabilidad de este esquema como metodología reproducible para la caracterización acústica en entornos académicos.
+
+
+
+% =============================================================
+
+\section{Antecedentes Teóricos}
+
+\subsection{ Propagación de ondas acústicas en gases ideales}
+
+Una onda sonora es una perturbación mecánica de carácter longitudinal que se propaga a través de un medio elástico mediante sucesivas compresiones y rarefacciones de las partículas del fluido. Dado que las fluctuaciones locales de presión y densidad ocurren con extrema rapidez, el intercambio térmico entre los frentes de onda y el entorno circundante es despreciable. Por consiguiente, el proceso se modela rigurosamente como una transformación adiabática reversible (isentrópica) \cite{morse1986}.
+
+A partir de las ecuaciones de Navier-Stokes y la ecuación de continuidad para un fluido compresible no viscoso, se demuestra que la velocidad de fase de una onda acústica $v$ está vinculada al módulo de compresibilidad adiabático $B_s$ y a la densidad de equilibrio del medio $\rho_0$ mediante la relación clásica de Newton-Laplace \cite{pierce1989}:
+
+\begin{equation}
+v = \sqrt{\frac{B_s}{\rho_0}}
+\label{eq:newton_laplace}
+\end{equation}
+
+Para el caso específico del aire, bajo la aproximación de comportamiento de gas ideal, el módulo de compresibilidad adiabático se define como $B_s = \gamma P_0$, donde $\gamma$ representa el coeficiente de expansión adiabática (razón de calores específicos $C_p/C_v$) y $P_0$ es la presión ambiental de equilibrio. Al sustituir la densidad del gas ideal $\rho_0 = P_0 M / R T$ en la ecuación \eqref{eq:newton_laplace}, se deduce la expression fundamental para la velocidad del sonido en función de la temperatura absoluta \cite{kinsler2000}:
+
+\begin{equation}
+v = \sqrt{\frac{\gamma R T}{M}}
+\label{eq:v_ideal_gas}
+\end{equation}
+
+Donde:
+
+$\gamma$ es el coeficiente adiabático del aire ($\approx 1.402$ para un gas diatómico).
+
+$R$ es la constante universal de los gases ideales ($8.314\,\text{J}/(\text{mol}\cdot\text{K})$) \cite{holman2011}.
+
+$T$ es la temperatura absoluta del medio medida en Kelvin ($\text{K}$).
+
+$M$ es la masa molar promedio del aire seco ($\approx 28.96 \times 10^{-3}\,\text{kg}/\text{mol}$).
+
+\subsection{Aproximación lineal del modelo térmico}
+
+Dado que en entornos controlados de laboratorio las variaciones de temperatura comúnmente restringen su escala a fluctuaciones moderadas en torno a los $0\,^{\circ}\text{C}$ ($273.15\,\text{K}$), la relación no lineal expuesta en la ecuación \eqref{eq:v_ideal_gas} puede simplificarse mediante una expansión en serie de Taylor. Definiendo la temperatura en la escala Celsius como $t = T - 273.15$, la velocidad a una temperatura dada se puede expresar respecto a la velocidad de referencia en el punto de congelación ($v_0 \approx 331.5\,\text{m/s}$) \cite[p.~121, Ec.~5.6.6]{kinsler2000}:
+
+\begin{equation}
+v(t) = v_0 \sqrt{1 + \frac{t}{273.15}}
+\label{eq:v_taylor}
+\end{equation}
+
+Al expandir el término radical mediante el teorema binomial $(1 + x)^{1/2} \approx 1 + \frac{1}{2}x$ para valores de $t \ll 273.15$ \cite{thomas2010}, la ecuación \eqref{eq:v_taylor} se reduce a la aproximación lineal clásica adoptada por Kinsler et al. \cite{kinsler2000}:
+
+\begin{equation}
+v(t) \approx v_0 + \left( \frac{v_0}{2 \times 273.15} \right) t \approx 331.5 + 0.607 t
+\label{eq:v_linear}
+\end{equation}
+
+La ecuación \eqref{eq:v_linear} establece que, teóricamente, la velocidad de propagación del sonido en el aire exhibe un comportamiento lineal respecto a la temperatura en Celsius, caracterizado por una pendiente local nominal de $0.607\,\text{m}/(\text{s}\cdot^{\circ}\text{C})$ y un intercepto en el origen de $331.5\,\text{m/s}$. Esta ecuación actúa como el modelo de referencia analítico para el posterior ajuste por mínimos cuadrados de los datos experimentales recogidos en este trabajo.
+
+\subsection{Principio de tiempo de vuelo (ToF) en sensores ultrasónicos}
+
+La determinación empírica de la velocidad acústica se fundamenta en el principio cinemático de Tiempo de Vuelo (Time-of-Flight, ToF) \cite{dally1993}. Un transductor piezoeléctrico emite un tren de pulsos ultrasónicos (típicamente a una frecuencia de $40\,\text{kHz}$, fuera del espectro audible humano) el cual viaja a través de una distancia fija conocida $d$ hasta colisionar con una superficie reflectante \cite{acebott2024}. El eco de retorno es registrado por el elemento receptor del módulo acústico, contabilizándose el tiempo total de ida y vuelta $\Delta \tau$ mediante los contadores internos del microprocesador. La velocidad del sonido medida experimentalmente se calcula de forma directa como:
+
+\begin{equation}
+v_{\text{exp}} = \frac{2d}{\Delta \tau}
+\label{eq:tof}
+\end{equation}
+
+A pesar de la simplicidad de la ecuación \eqref{eq:tof}, la precisión del ToF está sujeta a la estabilidad del reloj interno del hardware (ESP32) y a la ausencia de gradientes térmicos abruptos en el trayecto rectilíneo $2d$, variables que introducen desviaciones estocásticas y sistemáticas en la pendiente real del modelo \cite{dally1993}, \cite{montgomery2012}.
+% =============================================================
+% =============================================================
+\section{Metodología}
+% =============================================================
+
+\subsection{Montaje experimental}
+
+El sistema de medición se basa en un microcontrolador ESP32, un sensor ultrasónico HC-SR04 y un sensor de temperatura y humedad DHT11. El HC-SR04 se ubicó a una distancia fija de 
+$d = \SI{0.3}{\meter}$ 
+de una pared reflectante dentro de un cilindro tapado en una de sus caras, el cual se calentó externamente mediante un secador de aire para generar un gradiente de temperatura controlado, variando entre 
+$\SI{25}{\celsius}$ y $\SI{71}{\celsius}$, el DHT11 se colocó en el interior del cilindro para registrar la temperatura del aire en el momento de cada medición de tiempo ultrasónico.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/montaje_experimental.jpeg}
+\caption{Montaje experimental: cilindro con sensor ultrasónico HC-SR04, sensor DHT11 y ESP32 (cables).}
+\label{fig:montaje}
+\end{figure}
+
+El ESP32 se programó para permanecer a la espera de una señal de inicio (\texttt{'a'}), tal como se ha enseñado en clase, enviada por puerto serial para sincronizar la toma de datos experimentales, momento en el cual comienza a emitir pulsos ultrasónicos y a registrar simultáneamente la duración del eco (en microsegundos), la temperatura (°C) y la humedad relativa (\%), aunque esta última no será utilizada en este análisis. El muestreo se realizó cada \SI{500}{\milli\second} hasta recibir la señal de detención (\texttt{'s'}).
+
+\subsection{Adquisición de datos}
+
+La comunicación entre el ESP32 y un computador se estableció mediante un enlace serial controlado por un script en Python (\texttt{pyserial}) donde cada línea recibida contiene la terna (duración del pulso, temperatura, humedad), la cual se almacena en tiempo real. Con estos datos se calcula la velocidad del sonido para cada medición individual mediante
+
+\begin{equation*}
+v = \frac{2d}{t}
+\end{equation*}
+
+\noindent donde $d$ es la distancia sensor-pared y $t$ es la duración del pulso de eco expresada en segundos. El factor 2 corrige el hecho de que el pulso recorre la distancia $d$ dos veces (ida y vuelta) en la configuración de eco utilizada.
+
+Se realizaron cinco repeticiones independientes del experimento, cada una consistente en un ciclo de calentamiento del cilindro seguido de enfriamiento libre, cubriendo un rango de temperatura aproximado de \SI{25}{\celsius} a \SI{71}{\celsius}, cada repetición se almacenó en un archivo CSV independiente con las columnas duración del pulso, temperatura, humedad y velocidad calculada, es importante notar que la decisición de dejar la humedad como dato adicional es con el fin de proponer trabajos futuros con este experimento para analizar el comportamiento de la velocidad del sonido cuando cambia la humedad del ambiente.
+
+\subsection{Procesamiento y análisis de datos}
+
+Los datos de las cinco repeticiones se combinaron en un único conjunto de $n = 463$ puntos experimentales $(T_i, v_i)$. Sobre este conjunto se realizó un ajuste lineal por mínimos cuadrados de la forma
+
+\begin{equation}
+v(T) = aT + b
+\label{eq:ajuste_lineal}
+\end{equation}
+
+\noindent cuyas incertidumbres asociadas a la pendiente y al intercepto se calcularon mediante las expresiones estándar de regresión lineal simple:
+
+\begin{equation*}
+\sigma_a = \sqrt{\frac{s^2}{S_{TT}}}, \qquad
+\sigma_b = \sqrt{s^2\left(\frac{1}{n}+\frac{\bar{T}^2}{S_{TT}}\right)}
+\end{equation*}
+
+\noindent donde $S_{TT} = \sum_i (T_i - \bar{T})^2$ y $s^2$ es la varianza residual del ajuste, con $n-2$ grados de libertad.
+
+Adicionalmente, con el fin de reducir el ruido de medición punto a punto, los datos combinados se agruparon en bins de temperatura de ancho \SI{1}{\celsius}, para cada bin con al menos dos puntos se calculó la velocidad promedio y su error estándar de la media (SEM), y se repitió el ajuste lineal (Ec.~\eqref{eq:ajuste_lineal}) sobre estos promedios.
+
+\noindent Finalmente, se calcularon los residuos $v_{\text{exp}} - v_{\text{teo}}$ para cada bin de temperatura, con el fin de identificar posibles desviaciones sistemáticas respecto al modelo teórico (Ec.~\eqref{eq:v_taylor}), todo el procesamiento (lectura de archivos, ajustes, binning y generación de figuras) se implementó en Python.
+% =============================================================
+\section{Resultados}
+
+En la tabla \ref{tab:ajustes} se presentan los parámetros derivados del ajuste lineal por mínimos cuadrados realizado para cada una de las cinco repeticiones del experimento, así como para el conjunto de todos los datos combinados y del promedio de los mismos. 
+
+\begin{table}[ht]
+\centering
+\caption{Parámetros de los ajustes lineales.}
+\label{tab:ajustes}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Ajuste} & \textbf{n} & \textbf{$a$} & \textbf{$\sigma_a$} & \textbf{$b$} & \textbf{$\sigma_b$} & \textbf{$R^2$} \\
+\midrule
+Rep. 1 & 102 & 0.451 & 0.0418 & 341 & 2.16 & 0.538 \\
+Rep. 2 & 81  & 0.161 & 0.0651 & 353 & 3.11 & 0.0721 \\
+Rep. 3 & 93  & 0.188 & 0.0465 & 353 & 2.28 & 0.153 \\
+Rep. 4 & 86  & 0.274 & 0.0459 & 351 & 2.16 & 0.298 \\
+Rep. 5 & 101 & 0.146 & 0.0579 & 355 & 2.92 & 0.0602 \\
+\midrule
+Ajuste combinado & 463 & 0.260 & 0.0235 & 350 & 1.16 & 0.209 \\
+Ajuste promedios& 45 & 0.230 & 0.0298 & 352 & 1.50 & 0.580 \\
+\midrule
+Modelo teórico & -- & 0.606 & -- & 331 & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Se puede observar una variabilidad entre las repeticiones experimentales, mientras que la Rep. 1 presenta una correlación moderada de $R^2 = 0.538$, las Rep. 2 y 5 presentan muy alta dispersión con $R^2 < 0.1$. Las pendientes obtenidas oscilan entre $0.146m/s \cdot °C$ y $0.451 m/s \cdot °C$
+
+En la figura \ref{fig:placeholder} se presenta la relación entre la temperatura del aire y la velocidad del sonido calculadas para las cinco repeticiones del experimento (n = 463 puntos). Se observa una tendencia ascendente en los datos experimentales, con dispersión significativa que se le atribuye a limitaciones de la resolución del sensor HC-SR04 y posibles fluctuaciones en el medio de propagación.
+
+Los ajustes lineales se presentan en las siguientes ecuaciones; para la totalidad de los datos \eqref{ajuste datos} y el modelo teórico \eqref{ajuste teórico}:
+
+\begin{equation}
+    v = (0.260 \pm 0.024)T + (350.0 \pm 1.2)
+    \label{ajuste datos}
+\end{equation}
+
+\begin{equation}
+    v = 331.3 \sqrt{1 + \frac{T}{273.15}}
+    \label{ajuste teórico}
+\end{equation}
+
+En la Figura \ref{fig:placeholder} se visualiza la comparación de ambos ajustes. Se puede observar que la pendiente del ajuste experimental global presenta una menor pendiente en comparación con el modelo teórico.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{5 reps.jpeg}
+    \caption{Velocidad del sonido en función de la temperatura del aire}
+    \label{fig:placeholder}
+\end{figure}
+
+Los resultados obtenidos mediante el análisis de promedios se presentan en la Figura \ref{fig:promedios}. Este ajuste está descrito por la ecuación \eqref{eq prom}, y presenta una tendencia lineal con un coeficiente de determinación $R^2 = 0.580$, permitiendo hacer una comparación más clara de los resultados experimentales con la teoría.
+
+\begin{equation}
+    v_{p} = (0.230 \pm 0.030)T + (351.7 \pm 1.5)
+    \label{eq prom}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Bin promedio.jpeg}
+    \caption{Ajuste lineal de promedios}
+    \label{fig:promedios}
+\end{figure}
+
+Finalmente, analizamos la discrepancia entre nuestro modelo experimental y el modelo teórico de Kinsler mediante los residuos presentados en la Figura \ref{fig:placeholder} en la cual se puede observar una pendiente negativa en la diferencia entre el valor experimental y teórico a medida que aumenta la temperatura.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Bin residuos.jpeg}
+    \caption{Análisis del error}
+    \label{fig:placeholder}
+\end{figure}
+
+\section{Conclusiones}
+
+Se comprobó la relación lineal entre la velocidad del sonido en el aire y la temperatura para un rango de $25^\circ\mathrm{C}$ a $71^\circ\mathrm{C}$. A pesar de presentarse una gran dispersión inicial, los datos obtenidos demuestran una clara tendencia ascendente predicha por la termodinámica y el modelo teórico de Kinsler.
+
+La implementación de la técnica de agrupar los resultados fue fundamental para el análisis, debido a que permitió mitigar el ruido producido por el sensor ultrasónico e incrementar el coeficiente de determinación de $R^2 = 0.209$ a $R^2 = 0.580$.
+
+El análisis de residuos evidencia una tendencia lineal negativa, la cual se atribuye a fallos en el montaje seleccionado para la toma de los datos. La diferencia entre la sensibilidad térmica experimental ($0.230 \pm 0.030$ m/s$\cdot^\circ$C) y la teórica ($0.606$ m/s$\cdot^\circ$C) se atribuye principalmente a la inercia térmica del sensor DHT11 y a la latencia de procesamiento del microcontrolador.
+
+El intercepto obtenido ($351.7 \pm 1.5$ m/s) presenta un desplazamiento frente al valor teórico a $0^\circ\mathrm{C}$ ($331.3$ m/s). Esta desviación sugiere una incertidumbre sistemática en la calibración de la distancia fija $d$ o un retraso temporal intrínseco en la detección del eco por parte del sensor HC-SR04.
+
+% =============================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

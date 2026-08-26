@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parents[0]  # original project folder
 
 PUERTO      = "/dev/ttyUSB0"
 BAUD        = 115200
-DISTANCIA_M = 0.29 # distancia real entre sensor y pared (metros)
+DISTANCIA_M = 0.30 # distancia real entre sensor y pared (metros)
 ARCHIVO_CSV = f"{BASE_DIR}/sonido_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
 # Almacenamiento compartido entre hilos

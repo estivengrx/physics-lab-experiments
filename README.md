@@ -9,15 +9,33 @@ This is a repository to store all my Experimental Physics projects, homeworks, e
 - Advanced laboratory I, II, III
 If you want to know more about the Physics curriculum at UdeA, visit: [Physics curriculum at UdeA](https://www.udea.edu.co/wps/portal/udea/web/inicio/unidades-academicas/ciencias-exactas-naturales/estudiar-facultad/pregrados/fisica)
 
-In experimental physics (exp) II the main idea was to familiarize with measurement instruments, although this has been done in basically each of the experimental courses. In expIII, statistical concepts were applied to physical data obtained either by human measurements, as well as computational ones. In expIV the computational measurements were done more consistently, specifically using the software and hardware of Arduino, this also has been the case for advanced laboratory I, but the difference is that expIV is focused on understanding the principles of modern Physics, such as photo electric effect, spectrometry and so on... advanced laboratory I is mainly focused on the computational or technological usage of scientific software and hardware in advanced physics laboratories around the world.
+In experimental physics (exp) II the main idea was to familiarize with measurement instruments, although this has been done in basically each of the experimental courses. In expIII, statistical concepts were applied to physical data obtained either by human measurements, as well as computational ones. In expIV the computational measurements were done more consistently, specifically using the software and hardware of Arduino, this also has been the case for advanced laboratory I, but the difference is that expIV is focused on understanding the principles of modern Physics, such as photo electric effect, spectrometry and so on... advanced laboratory I is mainly focused on the computational or technological usage of scientific software and hardware in advanced physics laboratories around the world, as well as an introduction to FPGA programming.
 
 Here is the project structure (only the main files are shown below for brevity), each folder contains its main notebook (.ipynb) or python (.py) file, there are also additional documents such as Arduino (.ino) files and data used in each analysis, either as .csv or .txt formats, as well as Latex (.tex) files:
 
 ## ADVANCED-LAB-I
-- additional-reference-code/
-  - connecting-arduino-python.py
-   📄 [Ver informe en PDF](ADVANCED-LAB-I/practice1-accelerometer-ai/docs/main.pdf)
+- final-project-measurement-sound-speed-temperature/
+  - project-data-analysis.py
+  - sound-speed-measurement.py
+  - code-sound-speed-measurement/
+    - code-sound-speed-measurement.ino
+  - docs/
 
+- practice1-accelerometer-ai/
+  - main.py
+    
+- practice2-curve-i-v-labview/
+  - diodo completo.vi
+  - docs/
+    - main.tex
+    - main-practice2.pdf
+
+- practice3-raspberry-pi/
+  - practice3-raspberry-pi.pdf
+
+- practice4-fpga-charging-capacitor/
+  - fpga-capacitor-data-retrieval.py
+  - fpga-charge-discharge-curve.py
 
 ## EXP-PHY-II
 - 1.0-normal-poisson-distribution-CLT/
